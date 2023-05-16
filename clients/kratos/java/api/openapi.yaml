@@ -7,7 +7,7 @@ info:
   license:
     name: Apache 2.0
   title: Ory Identities API
-  version: v0.13.1
+  version: v0.13.2
 servers:
 - url: /
 tags:
@@ -1420,6 +1420,24 @@ paths:
         schema:
           type: string
         style: simple
+      - description: |-
+          EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token
+          after the login flow has been completed.
+        explode: true
+        in: query
+        name: return_session_token_exchange_code
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: The URL to return the browser to after the flow was completed.
+        explode: true
+        in: query
+        name: return_to
+        required: false
+        schema:
+          type: string
+        style: form
       responses:
         "200":
           content:
@@ -1682,6 +1700,18 @@ paths:
         schema:
           type: string
         style: form
+      - description: |-
+          HTTP Cookies
+
+          When using the SDK in a browser app, on the server side you must include the HTTP Cookie Header
+          sent by the client to your server here. This ensures that CSRF and session cookies are respected.
+        explode: false
+        in: header
+        name: Cookie
+        required: false
+        schema:
+          type: string
+        style: simple
       responses:
         "204":
           description: "Empty responses are sent when, for example, resources are\
@@ -2191,6 +2221,25 @@ paths:
 
         More information can be found at [Ory Kratos User Login](https://www.ory.sh/docs/kratos/self-service/flows/user-login) and [User Registration Documentation](https://www.ory.sh/docs/kratos/self-service/flows/user-registration).
       operationId: createNativeRegistrationFlow
+      parameters:
+      - description: |-
+          EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token
+          after the login flow has been completed.
+        explode: true
+        in: query
+        name: return_session_token_exchange_code
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: The URL to return the browser to after the flow was completed.
+        explode: true
+        in: query
+        name: return_to
+        required: false
+        schema:
+          type: string
+        style: form
       responses:
         "200":
           content:
@@ -3182,6 +3231,61 @@ paths:
                 $ref: '#/components/schemas/errorGeneric'
           description: errorGeneric
       summary: Get My Active Sessions
+      tags:
+      - frontend
+      x-accepts: application/json
+  /sessions/token-exchange:
+    get:
+      operationId: exchangeSessionToken
+      parameters:
+      - description: The part of the code return when initializing the flow.
+        explode: true
+        in: query
+        name: init_code
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: The part of the code returned by the return_to URL.
+        explode: true
+        in: query
+        name: return_to_code
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successfulNativeLogin'
+          description: successfulNativeLogin
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorGeneric'
+          description: errorGeneric
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorGeneric'
+          description: errorGeneric
+        "410":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorGeneric'
+          description: errorGeneric
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorGeneric'
+          description: errorGeneric
+      summary: Exchange Session Token
       tags:
       - frontend
       x-accepts: application/json
@@ -4718,6 +4822,7 @@ components:
         created_at: 2000-01-23T04:56:07.000+00:00
         refresh: true
         return_to: return_to
+        session_token_exchange_code: session_token_exchange_code
         type: type
         issued_at: 2000-01-23T04:56:07.000+00:00
         request_url: request_url
@@ -4900,6 +5005,12 @@ components:
           $ref: '#/components/schemas/authenticatorAssuranceLevel'
         return_to:
           description: ReturnTo contains the requested return_to URL.
+          type: string
+        session_token_exchange_code:
+          description: |-
+            SessionTokenExchangeCode holds the secret code that the client can use to retrieve a session token after the login flow has been completed.
+            This is only set if the client has requested a session token exchange code, and if the flow is of type "api",
+            and only on creating the login flow.
           type: string
         type:
           description: The flow type can either be `api` or `browser`.
@@ -5518,6 +5629,7 @@ components:
         oauth2_login_challenge: oauth2_login_challenge
         active: null
         return_to: return_to
+        session_token_exchange_code: session_token_exchange_code
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         type: type
         issued_at: 2000-01-23T04:56:07.000+00:00
@@ -5554,6 +5666,12 @@ components:
           type: string
         return_to:
           description: ReturnTo contains the requested return_to URL.
+          type: string
+        session_token_exchange_code:
+          description: |-
+            SessionTokenExchangeCode holds the secret code that the client can use to retrieve a session token after the flow has been completed.
+            This is only set if the client has requested a session token exchange code, and if the flow is of type "api",
+            and only on creating the flow.
           type: string
         transient_payload:
           description: TransientPayload is used to pass data from the registration
@@ -5968,6 +6086,25 @@ components:
       - success
       title: 'State represents the state of this flow. It knows two states:'
       type: string
+    successfulCodeExchangeResponse:
+      description: The Response for Registration Flows via API
+      properties:
+        session:
+          $ref: '#/components/schemas/session'
+        session_token:
+          description: |-
+            The Session Token
+
+            A session token is equivalent to a session cookie, but it can be sent in the HTTP Authorization
+            Header:
+
+            Authorization: bearer ${session-token}
+
+            The session token is only issued for API flows, not for Browser flows!
+          type: string
+      required:
+      - session
+      type: object
     successfulNativeLogin:
       description: The Response for Login Flows via API
       example:

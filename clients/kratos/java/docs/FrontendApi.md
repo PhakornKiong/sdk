@@ -17,6 +17,7 @@ All URIs are relative to *http://localhost*
 | [**createNativeVerificationFlow**](FrontendApi.md#createNativeVerificationFlow) | **GET** /self-service/verification/api | Create Verification Flow for Native Apps |
 | [**disableMyOtherSessions**](FrontendApi.md#disableMyOtherSessions) | **DELETE** /sessions | Disable my other sessions |
 | [**disableMySession**](FrontendApi.md#disableMySession) | **DELETE** /sessions/{id} | Disable one of my sessions |
+| [**exchangeSessionToken**](FrontendApi.md#exchangeSessionToken) | **GET** /sessions/token-exchange | Exchange Session Token |
 | [**getFlowError**](FrontendApi.md#getFlowError) | **GET** /self-service/errors | Get User-Flow Errors |
 | [**getLoginFlow**](FrontendApi.md#getLoginFlow) | **GET** /self-service/login/flows | Get Login Flow |
 | [**getRecoveryFlow**](FrontendApi.md#getRecoveryFlow) | **GET** /self-service/recovery/flows | Get Recovery Flow |
@@ -440,7 +441,7 @@ No authorization required
 
 <a name="createNativeLoginFlow"></a>
 # **createNativeLoginFlow**
-> LoginFlow createNativeLoginFlow(refresh, aal, xSessionToken)
+> LoginFlow createNativeLoginFlow(refresh, aal, xSessionToken, returnSessionTokenExchangeCode, returnTo)
 
 Create Login Flow for Native Apps
 
@@ -464,8 +465,10 @@ public class Example {
     Boolean refresh = true; // Boolean | Refresh a login session  If set to true, this will refresh an existing login session by asking the user to sign in again. This will reset the authenticated_at time of the session.
     String aal = "aal_example"; // String | Request a Specific AuthenticationMethod Assurance Level  Use this parameter to upgrade an existing session's authenticator assurance level (AAL). This allows you to ask for multi-factor authentication. When an identity sign in using e.g. username+password, the AAL is 1. If you wish to \"upgrade\" the session's security by asking the user to perform TOTP / WebAuth/ ... you would set this to \"aal2\".
     String xSessionToken = "xSessionToken_example"; // String | The Session Token of the Identity performing the settings flow.
+    Boolean returnSessionTokenExchangeCode = true; // Boolean | EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed.
+    String returnTo = "returnTo_example"; // String | The URL to return the browser to after the flow was completed.
     try {
-      LoginFlow result = apiInstance.createNativeLoginFlow(refresh, aal, xSessionToken);
+      LoginFlow result = apiInstance.createNativeLoginFlow(refresh, aal, xSessionToken, returnSessionTokenExchangeCode, returnTo);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling FrontendApi#createNativeLoginFlow");
@@ -485,6 +488,8 @@ public class Example {
 | **refresh** | **Boolean**| Refresh a login session  If set to true, this will refresh an existing login session by asking the user to sign in again. This will reset the authenticated_at time of the session. | [optional] |
 | **aal** | **String**| Request a Specific AuthenticationMethod Assurance Level  Use this parameter to upgrade an existing session&#39;s authenticator assurance level (AAL). This allows you to ask for multi-factor authentication. When an identity sign in using e.g. username+password, the AAL is 1. If you wish to \&quot;upgrade\&quot; the session&#39;s security by asking the user to perform TOTP / WebAuth/ ... you would set this to \&quot;aal2\&quot;. | [optional] |
 | **xSessionToken** | **String**| The Session Token of the Identity performing the settings flow. | [optional] |
+| **returnSessionTokenExchangeCode** | **Boolean**| EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed. | [optional] |
+| **returnTo** | **String**| The URL to return the browser to after the flow was completed. | [optional] |
 
 ### Return type
 
@@ -568,7 +573,7 @@ No authorization required
 
 <a name="createNativeRegistrationFlow"></a>
 # **createNativeRegistrationFlow**
-> RegistrationFlow createNativeRegistrationFlow()
+> RegistrationFlow createNativeRegistrationFlow(returnSessionTokenExchangeCode, returnTo)
 
 Create Registration Flow for Native Apps
 
@@ -589,8 +594,10 @@ public class Example {
     defaultClient.setBasePath("http://localhost");
 
     FrontendApi apiInstance = new FrontendApi(defaultClient);
+    Boolean returnSessionTokenExchangeCode = true; // Boolean | EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed.
+    String returnTo = "returnTo_example"; // String | The URL to return the browser to after the flow was completed.
     try {
-      RegistrationFlow result = apiInstance.createNativeRegistrationFlow();
+      RegistrationFlow result = apiInstance.createNativeRegistrationFlow(returnSessionTokenExchangeCode, returnTo);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling FrontendApi#createNativeRegistrationFlow");
@@ -604,7 +611,11 @@ public class Example {
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **returnSessionTokenExchangeCode** | **Boolean**| EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed. | [optional] |
+| **returnTo** | **String**| The URL to return the browser to after the flow was completed. | [optional] |
 
 ### Return type
 
@@ -883,6 +894,72 @@ No authorization required
 | **204** | Empty responses are sent when, for example, resources are deleted. The HTTP status code for empty responses is typically 201. |  -  |
 | **400** | errorGeneric |  -  |
 | **401** | errorGeneric |  -  |
+| **0** | errorGeneric |  -  |
+
+<a name="exchangeSessionToken"></a>
+# **exchangeSessionToken**
+> SuccessfulNativeLogin exchangeSessionToken(initCode, returnToCode)
+
+Exchange Session Token
+
+### Example
+```java
+// Import classes:
+import sh.ory.kratos.ApiClient;
+import sh.ory.kratos.ApiException;
+import sh.ory.kratos.Configuration;
+import sh.ory.kratos.models.*;
+import sh.ory.kratos.api.FrontendApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost");
+
+    FrontendApi apiInstance = new FrontendApi(defaultClient);
+    String initCode = "initCode_example"; // String | The part of the code return when initializing the flow.
+    String returnToCode = "returnToCode_example"; // String | The part of the code returned by the return_to URL.
+    try {
+      SuccessfulNativeLogin result = apiInstance.exchangeSessionToken(initCode, returnToCode);
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling FrontendApi#exchangeSessionToken");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **initCode** | **String**| The part of the code return when initializing the flow. | |
+| **returnToCode** | **String**| The part of the code returned by the return_to URL. | |
+
+### Return type
+
+[**SuccessfulNativeLogin**](SuccessfulNativeLogin.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | successfulNativeLogin |  -  |
+| **403** | errorGeneric |  -  |
+| **404** | errorGeneric |  -  |
+| **410** | errorGeneric |  -  |
 | **0** | errorGeneric |  -  |
 
 <a name="getFlowError"></a>
@@ -1625,7 +1702,7 @@ No authorization required
 
 <a name="updateLogoutFlow"></a>
 # **updateLogoutFlow**
-> updateLogoutFlow(token, returnTo)
+> updateLogoutFlow(token, returnTo, cookie)
 
 Update Logout Flow
 
@@ -1648,8 +1725,9 @@ public class Example {
     FrontendApi apiInstance = new FrontendApi(defaultClient);
     String token = "token_example"; // String | A Valid Logout Token  If you do not have a logout token because you only have a session cookie, call `/self-service/logout/browser` to generate a URL for this endpoint.
     String returnTo = "returnTo_example"; // String | The URL to return to after the logout was completed.
+    String cookie = "cookie_example"; // String | HTTP Cookies  When using the SDK in a browser app, on the server side you must include the HTTP Cookie Header sent by the client to your server here. This ensures that CSRF and session cookies are respected.
     try {
-      apiInstance.updateLogoutFlow(token, returnTo);
+      apiInstance.updateLogoutFlow(token, returnTo, cookie);
     } catch (ApiException e) {
       System.err.println("Exception when calling FrontendApi#updateLogoutFlow");
       System.err.println("Status code: " + e.getCode());
@@ -1667,6 +1745,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **token** | **String**| A Valid Logout Token  If you do not have a logout token because you only have a session cookie, call &#x60;/self-service/logout/browser&#x60; to generate a URL for this endpoint. | [optional] |
 | **returnTo** | **String**| The URL to return to after the logout was completed. | [optional] |
+| **cookie** | **String**| HTTP Cookies  When using the SDK in a browser app, on the server side you must include the HTTP Cookie Header sent by the client to your server here. This ensures that CSRF and session cookies are respected. | [optional] |
 
 ### Return type
 

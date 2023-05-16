@@ -17,6 +17,7 @@ Method | HTTP request | Description
 [**createNativeVerificationFlow()**](FrontendApi.md#createNativeVerificationFlow) | **GET** /self-service/verification/api | Create Verification Flow for Native Apps
 [**disableMyOtherSessions()**](FrontendApi.md#disableMyOtherSessions) | **DELETE** /sessions | Disable my other sessions
 [**disableMySession()**](FrontendApi.md#disableMySession) | **DELETE** /sessions/{id} | Disable one of my sessions
+[**exchangeSessionToken()**](FrontendApi.md#exchangeSessionToken) | **GET** /sessions/token-exchange | Exchange Session Token
 [**getFlowError()**](FrontendApi.md#getFlowError) | **GET** /self-service/errors | Get User-Flow Errors
 [**getLoginFlow()**](FrontendApi.md#getLoginFlow) | **GET** /self-service/login/flows | Get Login Flow
 [**getRecoveryFlow()**](FrontendApi.md#getRecoveryFlow) | **GET** /self-service/recovery/flows | Get Recovery Flow
@@ -388,7 +389,7 @@ No authorization required
 ## `createNativeLoginFlow()`
 
 ```php
-createNativeLoginFlow($refresh, $aal, $xSessionToken): \Ory\Kratos\Client\Model\LoginFlow
+createNativeLoginFlow($refresh, $aal, $xSessionToken, $returnSessionTokenExchangeCode, $returnTo): \Ory\Kratos\Client\Model\LoginFlow
 ```
 
 Create Login Flow for Native Apps
@@ -411,9 +412,11 @@ $apiInstance = new Ory\Kratos\Client\Api\FrontendApi(
 $refresh = True; // bool | Refresh a login session  If set to true, this will refresh an existing login session by asking the user to sign in again. This will reset the authenticated_at time of the session.
 $aal = 'aal_example'; // string | Request a Specific AuthenticationMethod Assurance Level  Use this parameter to upgrade an existing session's authenticator assurance level (AAL). This allows you to ask for multi-factor authentication. When an identity sign in using e.g. username+password, the AAL is 1. If you wish to \"upgrade\" the session's security by asking the user to perform TOTP / WebAuth/ ... you would set this to \"aal2\".
 $xSessionToken = 'xSessionToken_example'; // string | The Session Token of the Identity performing the settings flow.
+$returnSessionTokenExchangeCode = True; // bool | EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed.
+$returnTo = 'returnTo_example'; // string | The URL to return the browser to after the flow was completed.
 
 try {
-    $result = $apiInstance->createNativeLoginFlow($refresh, $aal, $xSessionToken);
+    $result = $apiInstance->createNativeLoginFlow($refresh, $aal, $xSessionToken, $returnSessionTokenExchangeCode, $returnTo);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FrontendApi->createNativeLoginFlow: ', $e->getMessage(), PHP_EOL;
@@ -427,6 +430,8 @@ Name | Type | Description  | Notes
  **refresh** | **bool**| Refresh a login session  If set to true, this will refresh an existing login session by asking the user to sign in again. This will reset the authenticated_at time of the session. | [optional]
  **aal** | **string**| Request a Specific AuthenticationMethod Assurance Level  Use this parameter to upgrade an existing session&#39;s authenticator assurance level (AAL). This allows you to ask for multi-factor authentication. When an identity sign in using e.g. username+password, the AAL is 1. If you wish to \&quot;upgrade\&quot; the session&#39;s security by asking the user to perform TOTP / WebAuth/ ... you would set this to \&quot;aal2\&quot;. | [optional]
  **xSessionToken** | **string**| The Session Token of the Identity performing the settings flow. | [optional]
+ **returnSessionTokenExchangeCode** | **bool**| EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed. | [optional]
+ **returnTo** | **string**| The URL to return the browser to after the flow was completed. | [optional]
 
 ### Return type
 
@@ -501,7 +506,7 @@ No authorization required
 ## `createNativeRegistrationFlow()`
 
 ```php
-createNativeRegistrationFlow(): \Ory\Kratos\Client\Model\RegistrationFlow
+createNativeRegistrationFlow($returnSessionTokenExchangeCode, $returnTo): \Ory\Kratos\Client\Model\RegistrationFlow
 ```
 
 Create Registration Flow for Native Apps
@@ -521,9 +526,11 @@ $apiInstance = new Ory\Kratos\Client\Api\FrontendApi(
     // This is optional, `GuzzleHttp\Client` will be used as default.
     new GuzzleHttp\Client()
 );
+$returnSessionTokenExchangeCode = True; // bool | EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed.
+$returnTo = 'returnTo_example'; // string | The URL to return the browser to after the flow was completed.
 
 try {
-    $result = $apiInstance->createNativeRegistrationFlow();
+    $result = $apiInstance->createNativeRegistrationFlow($returnSessionTokenExchangeCode, $returnTo);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling FrontendApi->createNativeRegistrationFlow: ', $e->getMessage(), PHP_EOL;
@@ -532,7 +539,10 @@ try {
 
 ### Parameters
 
-This endpoint does not need any parameter.
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **returnSessionTokenExchangeCode** | **bool**| EnableSessionTokenExchangeCode requests the login flow to include a code that can be used to retrieve the session token after the login flow has been completed. | [optional]
+ **returnTo** | **string**| The URL to return the browser to after the flow was completed. | [optional]
 
 ### Return type
 
@@ -763,6 +773,62 @@ Name | Type | Description  | Notes
 ### Return type
 
 void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+[[Back to top]](#) [[Back to API list]](../../README.md#endpoints)
+[[Back to Model list]](../../README.md#models)
+[[Back to README]](../../README.md)
+
+## `exchangeSessionToken()`
+
+```php
+exchangeSessionToken($initCode, $returnToCode): \Ory\Kratos\Client\Model\SuccessfulNativeLogin
+```
+
+Exchange Session Token
+
+### Example
+
+```php
+<?php
+require_once(__DIR__ . '/vendor/autoload.php');
+
+
+
+$apiInstance = new Ory\Kratos\Client\Api\FrontendApi(
+    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+    // This is optional, `GuzzleHttp\Client` will be used as default.
+    new GuzzleHttp\Client()
+);
+$initCode = 'initCode_example'; // string | The part of the code return when initializing the flow.
+$returnToCode = 'returnToCode_example'; // string | The part of the code returned by the return_to URL.
+
+try {
+    $result = $apiInstance->exchangeSessionToken($initCode, $returnToCode);
+    print_r($result);
+} catch (Exception $e) {
+    echo 'Exception when calling FrontendApi->exchangeSessionToken: ', $e->getMessage(), PHP_EOL;
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **initCode** | **string**| The part of the code return when initializing the flow. |
+ **returnToCode** | **string**| The part of the code returned by the return_to URL. |
+
+### Return type
+
+[**\Ory\Kratos\Client\Model\SuccessfulNativeLogin**](../Model/SuccessfulNativeLogin.md)
 
 ### Authorization
 
@@ -1418,7 +1484,7 @@ No authorization required
 ## `updateLogoutFlow()`
 
 ```php
-updateLogoutFlow($token, $returnTo)
+updateLogoutFlow($token, $returnTo, $cookie)
 ```
 
 Update Logout Flow
@@ -1440,9 +1506,10 @@ $apiInstance = new Ory\Kratos\Client\Api\FrontendApi(
 );
 $token = 'token_example'; // string | A Valid Logout Token  If you do not have a logout token because you only have a session cookie, call `/self-service/logout/browser` to generate a URL for this endpoint.
 $returnTo = 'returnTo_example'; // string | The URL to return to after the logout was completed.
+$cookie = 'cookie_example'; // string | HTTP Cookies  When using the SDK in a browser app, on the server side you must include the HTTP Cookie Header sent by the client to your server here. This ensures that CSRF and session cookies are respected.
 
 try {
-    $apiInstance->updateLogoutFlow($token, $returnTo);
+    $apiInstance->updateLogoutFlow($token, $returnTo, $cookie);
 } catch (Exception $e) {
     echo 'Exception when calling FrontendApi->updateLogoutFlow: ', $e->getMessage(), PHP_EOL;
 }
@@ -1454,6 +1521,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **token** | **string**| A Valid Logout Token  If you do not have a logout token because you only have a session cookie, call &#x60;/self-service/logout/browser&#x60; to generate a URL for this endpoint. | [optional]
  **returnTo** | **string**| The URL to return to after the logout was completed. | [optional]
+ **cookie** | **string**| HTTP Cookies  When using the SDK in a browser app, on the server side you must include the HTTP Cookie Header sent by the client to your server here. This ensures that CSRF and session cookies are respected. | [optional]
 
 ### Return type
 

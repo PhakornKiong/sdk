@@ -65,7 +65,7 @@ void main() {
     //
     // This endpoint initiates a login flow for native apps that do not use a browser, such as mobile devices, smart TVs, and so on.  If a valid provided session cookie or session token is provided, a 400 Bad Request error will be returned unless the URL query parameter `?refresh=true` is set.  To fetch an existing login flow call `/self-service/login/flows?flow=<flow_id>`.  You MUST NOT use this endpoint in client-side (Single Page Apps, ReactJS, AngularJS) nor server-side (Java Server Pages, NodeJS, PHP, Golang, ...) browser applications. Using this endpoint in these applications will make you vulnerable to a variety of CSRF attacks, including CSRF login attacks.  In the case of an error, the `error.id` of the JSON response body can be one of:  `session_already_available`: The user is already signed in. `session_aal1_required`: Multi-factor auth (e.g. 2fa) was requested but the user has no session yet. `security_csrf_violation`: Unable to fetch the flow because a CSRF violation occurred.  This endpoint MUST ONLY be used in scenarios such as native mobile apps (React Native, Objective C, Swift, Java, ...).  More information can be found at [Ory Kratos User Login](https://www.ory.sh/docs/kratos/self-service/flows/user-login) and [User Registration Documentation](https://www.ory.sh/docs/kratos/self-service/flows/user-registration).
     //
-    //Future<LoginFlow> createNativeLoginFlow({ bool refresh, String aal, String xSessionToken }) async
+    //Future<LoginFlow> createNativeLoginFlow({ bool refresh, String aal, String xSessionToken, bool returnSessionTokenExchangeCode, String returnTo }) async
     test('test createNativeLoginFlow', () async {
       // TODO
     });
@@ -83,7 +83,7 @@ void main() {
     //
     // This endpoint initiates a registration flow for API clients such as mobile devices, smart TVs, and so on.  If a valid provided session cookie or session token is provided, a 400 Bad Request error will be returned unless the URL query parameter `?refresh=true` is set.  To fetch an existing registration flow call `/self-service/registration/flows?flow=<flow_id>`.  You MUST NOT use this endpoint in client-side (Single Page Apps, ReactJS, AngularJS) nor server-side (Java Server Pages, NodeJS, PHP, Golang, ...) browser applications. Using this endpoint in these applications will make you vulnerable to a variety of CSRF attacks.  In the case of an error, the `error.id` of the JSON response body can be one of:  `session_already_available`: The user is already signed in. `security_csrf_violation`: Unable to fetch the flow because a CSRF violation occurred.  This endpoint MUST ONLY be used in scenarios such as native mobile apps (React Native, Objective C, Swift, Java, ...).  More information can be found at [Ory Kratos User Login](https://www.ory.sh/docs/kratos/self-service/flows/user-login) and [User Registration Documentation](https://www.ory.sh/docs/kratos/self-service/flows/user-registration).
     //
-    //Future<RegistrationFlow> createNativeRegistrationFlow() async
+    //Future<RegistrationFlow> createNativeRegistrationFlow({ bool returnSessionTokenExchangeCode, String returnTo }) async
     test('test createNativeRegistrationFlow', () async {
       // TODO
     });
@@ -121,6 +121,13 @@ void main() {
     //
     //Future disableMySession(String id, { String xSessionToken, String cookie }) async
     test('test disableMySession', () async {
+      // TODO
+    });
+
+    // Exchange Session Token
+    //
+    //Future<SuccessfulNativeLogin> exchangeSessionToken(String initCode, String returnToCode) async
+    test('test exchangeSessionToken', () async {
       // TODO
     });
 
@@ -227,7 +234,7 @@ void main() {
     //
     // This endpoint logs out an identity in a self-service manner.  If the `Accept` HTTP header is not set to `application/json`, the browser will be redirected (HTTP 303 See Other) to the `return_to` parameter of the initial request or fall back to `urls.default_return_to`.  If the `Accept` HTTP header is set to `application/json`, a 204 No Content response will be sent on successful logout instead.  This endpoint is NOT INTENDED for API clients and only works with browsers (Chrome, Firefox, ...). For API clients you can call the `/self-service/logout/api` URL directly with the Ory Session Token.  More information can be found at [Ory Kratos User Logout Documentation](https://www.ory.sh/docs/next/kratos/self-service/flows/user-logout).
     //
-    //Future updateLogoutFlow({ String token, String returnTo }) async
+    //Future updateLogoutFlow({ String token, String returnTo, String cookie }) async
     test('test updateLogoutFlow', () async {
       // TODO
     });

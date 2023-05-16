@@ -1,4 +1,4 @@
-module github.com/ory/kratos-client-go
+module github.com/PhakornKiong/sdk/clients/kratos/go
 
 go 1.20
 
